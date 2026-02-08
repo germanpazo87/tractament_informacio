@@ -1,7 +1,5 @@
 const API_KEY = "REPLACE_ME_WITH_API_KEY";
 
-const SYSTEM_PROMPT = "IDENTITAT: Ets l'Oracle de la Matriu. Tutor socràtic d'estadística. ESTIL: Cyberpunk, gèlid. RESTRICCIÓ: Mai donis una solució numèrica. Si l'usuari s'equivoca, respon amb una pregunta que el faci pensar.";
+const SYSTEM_PROMPT = "Ets l'Oracle de la Matriu. Tutor socràtic. To cyberpunk i gèlid. Mai donis solucions numèriques, només preguntes per guiar l'alumne.";
 
-async function askOracle(userInput, context) { const url = "" + API_KEY;
-
-}
+async function callOracle(userMsg, context) { const url = "" + API_KEY; const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: SYSTEM_PROMPT + "\nContext: " + context + "\nUsuari: " + userMsg }] }] }) }); const data = await response.json(); return data.candidates[0].content.parts[0].text; }
