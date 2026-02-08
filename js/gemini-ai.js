@@ -1,28 +1,27 @@
 /**
  * LA MATRIU - GEMINI AI
  * Integració amb l'API de Google Gemini
- * Funcions: Chat contextualitzat, Ajuda adaptativa, Pregunta de comprensió
+ * Versió: 2.5-flash (Fixed Deploy Logic)
  */
 
 /* ========================================
    CONFIGURACIÓ
    ======================================== */
-
 const GEMINI_CONFIG = {
     apiVersion: 'v1beta',
-    model: 'gemini-2.5-flash', // Mantenim la versió que et funciona
+    model: 'gemini-2.5-flash',
     maxTokens: 1000,
     temperature: 0.7,
     topP: 0.9,
     topK: 40
 };
 
+// Aquest placeholder sí que el volem substituir
 const API_KEY_PLACEHOLDER = 'REPLACE_ME_WITH_API_KEY';
 
 /* ========================================
-   GESTIÓ DE CONVERSA I CONTEXT
+   GESTIÓ DE CONVERSA
    ======================================== */
-
 let conversationHistory = [];
 let userLevel = 'medium'; 
 let currentExerciseContext = null;
@@ -30,96 +29,32 @@ let currentExerciseContext = null;
 function initExerciseContext(context) {
     currentExerciseContext = context;
     conversationHistory = [];
-    console.log('📝 Context de l\'exercici actualitzat:', context);
+    console.log('📝 Context actualitzat:', context);
 }
 
 function addToHistory(role, content) {
-    conversationHistory.push({ role: role, content: content, timestamp: Date.now() });
+    conversationHistory.push({ role: role, content: content });
     if (conversationHistory.length > 10) conversationHistory = conversationHistory.slice(-10);
 }
 
 /* ========================================
-   CONSTRUCCIÓ DE PROMPTS
-   ======================================== */
-
-function buildSystemPrompt(helpType) {
-    const levelInstructions = {
-        basic: 'Utilitza un llenguatge molt simple i exemples visuals. Explica pas a pas.',
-        medium: 'Utilitza un llenguatge clar amb alguns termes tècnics. Equilibra explicació i reflexió.',
-        advanced: 'Pots utilitzar terminologia tècnica. Enfoca\'t en conceptes i relacions.'
-    };
-    
-    const basePrompt = `Ets l'Oracle de la Matriu, un tutor socràtic especialitzat en estadística per a estudiants d'ESO.
-NIVELL DE L'ESTUDIANT: ${userLevel.toUpperCase()}
-INSTRUCCIONS DE NIVELL: ${levelInstructions[userLevel]}
-
-NORMES:
-- Mai donis la resposta directament.
-- Utilitza preguntes guia per ajudar l'estudiant a pensar.
-- Sigues breu i concís (màxim 3 frases).
-- Estètica: Cyberpunk/Matrix.`;
-
-    return helpType === 'contextual' 
-        ? basePrompt + "\nAjuda l'alumne amb el pas actual sense revelar la solució."
-        : basePrompt + "\nGenera una pregunta conceptual sobre el 'per què' del que s'està fent.";
-}
-
-function buildContextMessage() {
-    if (!currentExerciseContext) return 'No hi ha context disponible.';
-    const { exerciseType, data, stats, currentStep, userInputs } = currentExerciseContext;
-    return `EXERCICI: ${exerciseType}\nDADES: ${data?.join(', ')}\nSTATS: Min=${stats?.min}, Max=${stats?.max}\nPAS ACTUAL: ${currentStep}\nRESPOSTES: ${JSON.stringify(userInputs)}`;
-}
-
-/* ========================================
-   LLAMADAS A LA API
-   ======================================== */
-
-async function callGeminiAPI(userMessage, helpType = 'contextual') {
-    const apiKey = getApiKey();
-    if (!apiKey || apiKey === API_KEY_PLACEHOLDER) throw new Error('API Key no configurada');
-
-    const url = `https://generativelanguage.googleapis.com/${GEMINI_CONFIG.apiVersion}/models/${GEMINI_CONFIG.model}:generateContent?key=${apiKey}`;
-    const fullPrompt = `${buildSystemPrompt(helpType)}\n\n${buildContextMessage()}\n\nPREGUNTA: ${userMessage}`;
-
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: fullPrompt }] }],
-                generationConfig: {
-                    temperature: GEMINI_CONFIG.temperature,
-                    maxOutputTokens: GEMINI_CONFIG.maxTokens
-                }
-            })
-        });
-
-        const data = await response.json();
-        if (data.error) throw new Error(data.error.message);
-        
-        const aiResponse = data.candidates[0].content.parts[0].text;
-        addToHistory('user', userMessage);
-        addToHistory('assistant', aiResponse);
-        return aiResponse;
-    } catch (error) {
-        console.error('Error Gemini:', error);
-        throw error;
-    }
-}
-
-/* ========================================
-   INTERFAZ DE CHAT (UI)
+   LOGICA DE UI (REFRESH)
    ======================================== */
 
 /**
- * Funció central per refrescar la interfície (Show/Hide)
+ * Verifica si la clau guardada és una clau real o el placeholder
+ * Fem servir .startsWith('AIza') perquè el sed no trobi el text ací
  */
+function isKeyValid(key) {
+    return key && key.length > 20 && key.indexOf('AIza') === 0;
+}
+
 function refreshChatUI() {
-    const apiKey = getApiKey();
+    const key = getApiKey();
     const setupPanel = document.getElementById('api-setup');
     const chatPanel = document.getElementById('chat-interface');
     
-    if (apiKey && apiKey !== API_KEY_PLACEHOLDER && apiKey.length > 20) {
+    if (isKeyValid(key)) {
         if (setupPanel) setupPanel.style.display = 'none';
         if (chatPanel) chatPanel.style.display = 'flex';
         return true;
@@ -130,13 +65,47 @@ function refreshChatUI() {
     }
 }
 
+/* ========================================
+   LLAMADAS API
+   ======================================== */
+
+async function callGeminiAPI(userMessage, helpType = 'contextual') {
+    const apiKey = getApiKey();
+    if (!isKeyValid(apiKey)) throw new Error('PROTOCOL_ERROR: Clau no vàlida.');
+
+    const url = `https://generativelanguage.googleapis.com/${GEMINI_CONFIG.apiVersion}/models/${GEMINI_CONFIG.model}:generateContent?key=${apiKey}`;
+    
+    // Prompt simplificat per a test
+    const systemPrompt = "Ets l'Oracle de la Matriu, tutor socràtic d'estadística. Sigues breu.";
+    const contextMsg = currentExerciseContext ? `Context: ${JSON.stringify(currentExerciseContext)}` : "";
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: `${systemPrompt}\n${contextMsg}\nUsuari: ${userMessage}` }] }]
+            })
+        });
+
+        const data = await response.json();
+        return data.candidates[0].content.parts[0].text;
+    } catch (error) {
+        throw error;
+    }
+}
+
+/* ========================================
+   INTERFAZ DE CHAT
+   ======================================== */
+
 function addMessageToChat(message, sender = 'ia') {
     const chatWindow = document.getElementById('chat-window');
     if (!chatWindow) return;
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `msg msg-${sender}`;
-    messageDiv.textContent = message;
-    chatWindow.appendChild(messageDiv);
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `msg msg-${sender}`;
+    msgDiv.textContent = message;
+    chatWindow.appendChild(msgDiv);
     chatWindow.scrollTop = chatWindow.scrollHeight;
 }
 
@@ -157,61 +126,43 @@ async function handleUserMessage(message) {
     }
 }
 
-/* ========================================
-   CONTROLADORS D'ESDEVENIMENTS
-   ======================================== */
-
-function saveKeyAndShowChat() {
-    const input = document.getElementById('api-key-input');
-    const key = input?.value.trim();
-    if (saveApiKey(key)) {
-        showNotification('Connexió establerta', 'success');
-        refreshChatUI();
-    } else {
-        showNotification('Clau invàlida', 'error');
-    }
-}
-
 function sendUserQuery() {
     const input = document.getElementById('user-query');
-    const message = input?.value.trim();
-    if (message) {
-        handleUserMessage(message);
-        input.value = '';
-    }
+    const msg = input?.value.trim();
+    if (msg) { handleUserMessage(msg); input.value = ''; }
 }
 
-function initChatEventListeners() {
+function saveKeyAndShowChat() {
+    const key = document.getElementById('api-key-input')?.value.trim();
+    if (saveApiKey(key)) refreshChatUI();
+}
+
+/* ========================================
+   INICIALITZACIÓ
+   ======================================== */
+
+function initGeminiAI() {
+    console.log('🤖 LA MATRIU - Inicialitzant...');
+
+    // 1. Mirar si hi ha clau injectada
+    if (typeof INJECTED_API_KEY !== 'undefined' && isKeyValid(INJECTED_API_KEY)) {
+        saveApiKey(INJECTED_API_KEY);
+    }
+
+    // 2. Aplicar UI
+    const unlocked = refreshChatUI();
+
+    if (unlocked) {
+        addMessageToChat("Connexió establerta amb l'Oracle... [ONLINE]", 'system');
+    }
+
+    // Event listeners
     document.getElementById('user-query')?.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') sendUserQuery();
     });
 }
 
-/* ========================================
-   INICIALITZACIÓ (EL DESPERTAR)
-   ======================================== */
-
-function initGeminiAI() {
-    console.log('🤖 LA MATRIU - Iniciant protocols de l\'Oracle...');
-
-    // 1. Mirar si hi ha clau injectada pel deploy
-    if (typeof INJECTED_API_KEY !== 'undefined' && 
-        INJECTED_API_KEY !== API_KEY_PLACEHOLDER && 
-        INJECTED_API_KEY.length > 20) {
-        saveApiKey(INJECTED_API_KEY);
-    }
-
-    // 2. Aplicar canvis visuals segons la clau
-    const isUnlocked = refreshChatUI();
-
-    if (isUnlocked) {
-        addMessageToChat("Connexió xifrada amb l'Oracle... [ONLINE]", 'system');
-    }
-
-    initChatEventListeners();
-}
-
-// Arrencar automàticament
+// Auto-run
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initGeminiAI);
 } else {
