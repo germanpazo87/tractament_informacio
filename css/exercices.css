@@ -4,38 +4,44 @@
  */
 
 /* ========================================
-   LAYOUT DE EJERCICIOS (Split Screen)
+   LAYOUT DE EJERCICIOS (REVISAT)
    ======================================== */
 
-/* CRÍTIC: Layout lateral obligatori */
+/* El body ara és el contenidor pare de tot (Header + Layout + Footer) */
 body {
     margin: 0;
     padding: 0;
     display: flex;
+    flex-direction: column; /* Apilem en vertical: Header a dalt, Layout al mig, Footer a baix */
     height: 100vh;
-    overflow: hidden;
+    overflow: hidden; /* Evitem que tota la web tingui scroll */
 }
 
+/* El contenidor central que separa Exercici d'Oracle */
 .exercise-layout {
     display: flex;
+    flex-direction: row; /* Exercici a l'esquerra, Oracle a la dreta */
+    flex: 1;            /* Això fa que ocupi tot l'espai entre header i footer */
     width: 100%;
-    height: 100vh;
-    overflow: hidden;
+    overflow: hidden;    /* El scroll anirà dins de cada part, no aquí */
 }
 
 .main-content {
     flex: 1;
     padding: 30px;
-    overflow-y: auto;
+    overflow-y: auto;    /* Scroll independent per a l'exercici */
     border-right: 1px solid rgba(0, 255, 249, 0.2);
+    background: rgba(0, 0, 0, 0.2);
 }
 
 .ai-sidebar {
     width: 380px;
+    min-width: 380px;
     background: var(--panel-bg-solid);
     display: flex;
     flex-direction: column;
     border-left: 2px solid var(--neon-blue);
+    height: 100%;       /* Ocupa tota l'alçada del pare */
 }
 
 /* ========================================
