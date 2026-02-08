@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intervals > Estadística > La Matriu</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    
+    <!-- Estilos compartidos -->
+    <link rel="stylesheet" href="../css/matrix-core.css">
+    <link rel="stylesheet" href="../css/exercises.css">
+</head>
+<body class="exercise-layout">
+
+<!-- CONTENIDO PRINCIPAL -->
+<div class="main-content">
+    
+    <!-- HEADER -->
+    <div class="exercise-header">
+        <div class="breadcrumb">
+            <a href="https://germanpazo87.github.io/">CORE</a>
+            <span>&gt;</span>
+            <a href="../index.html">SECTOR_03</a>
+            <span>&gt;</span>
+            <a href="index.html">ESTADÍSTICA</a>
+            <span>&gt;</span>
+            EXEC_01
+        </div>
+        <h1>ESCÀNER D'INTERVALS</h1>
+    </div>
+
+    <!-- CARD: GENERACIÓN DE DATOS -->
+    <div class="card">
+        <span class="tool-id">DADES_REBUDES // RAW_DATA</span>
+        <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+            <button class="btn-cmd" onclick="generateNewData()">GENERAR NOVES DADES</button>
+            <button class="btn-cmd btn-green" onclick="loadSavedData()" id="btn-load-saved" style="display: none;">CARREGAR DADES ANTERIORS</button>
+        </div>
+        
+        <div class="data-display" id="data-display">--</div>
+        
+        <div class="stats-display">
+            <div class="stat-item">
+                <span class="stat-label">MÍN:</span>
+                <span class="stat-value" id="stat-min">--</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">MÀX:</span>
+                <span class="stat-value" id="stat-max">--</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">N:</span>
+                <span class="stat-value" id="stat-count">--</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- CARD: CONFIGURACIÓN DE INTERVALOS -->
+    <div class="card">
+        <span class="tool-id">CONFIG_INTERVALS // PARÀMETRES</span>
+        <p style="font-size: 0.85rem; color: rgba(255,255,255,0.7); margin-bottom: 15px;">
+            📌 <strong>Andamiatge:</strong> L'inici ha de ser ≤ al mínim. L'amplitud ha de permetre cobrir totes les dades en 5 intervals.
+        </p>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div>
+                <label style="font-size: 0.75rem; display: block; margin-bottom: 5px; color: var(--neon-blue);">
+                    INICI (x<sub>start</sub>):
+                </label>
+                <input type="number" id="in-start" class="val-input" placeholder="Ex: 10" oninput="updateIntervals()">
+                <div style="font-size: 0.65rem; color: rgba(255,255,255,0.5); margin-top: 5px;">
+                    💡 Ha de ser ≤ <span id="hint-min">--</span>
+                </div>
+            </div>
+            
+            <div>
+                <label style="font-size: 0.75rem; display: block; margin-bottom: 5px; color: var(--neon-blue);">
+                    AMPLITUD (A):
+                </label>
+                <input type="number" id="in-amp" class="val-input" placeholder="Ex: 5" oninput="updateIntervals()">
+                <div style="font-size: 0.65rem; color: rgba(255,255,255,0.5); margin-top: 5px;">
+                    💡 Rang suggerit: <span id="hint-amp">--</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CARD: VISTA PREVIA DE INTERVALOS -->
+    <div class="card">
+        <span class="tool-id">VISTA_PRÈVIA // VALIDACIÓ</span>
+        <p style="font-size: 0.85rem; color: rgba(255,255,255,0.7); margin-bottom: 15px;">
+            📌 <strong>Marca de classe (x<sub>i</sub>):</strong> Punt central de cada interval = (L<sub>inferior</sub> + L<sub>superior</sub>) / 2
+        </p>
+        
+        <table class="preview-table">
+            <thead>
+                <tr>
+                    <th>INTERVAL</th>
+                    <th>x<sub>i</sub> (Marca de classe)</th>
+                    <th>STATUS</th>
+                </tr>
+            </thead>
+            <tbody id="interval-body">
+                <tr>
+                    <td colspan="3" style="text-align: center; color: rgba(255,255,255,0.4); padding: 30px;">
+                        Configura els paràmetres per veure els intervals
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- NAVEGACIÓN -->
+    <div class="exercise-nav">
+        <div class="nav-step">
+            PAS 1 de 5: Intervals
+        </div>
+        <div class="nav-buttons">
+            <button class="btn-cmd" onclick="window.location.href='index.html'">TORNAR AL MENÚ</button>
+            <button class="btn-cmd btn-green" onclick="saveAndContinue()" id="btn-continue" disabled>
+                CONTINUAR → Freqüències
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<!-- SIDEBAR DE IA -->
+<div class="ai-sidebar">
+    
+    <!-- SETUP DE API KEY -->
+    <div id="api-setup">
+        <div class="lock-icon">🔒</div>
+        <h2>ACCÉS RESTRINGIT</h2>
+        <p>Per activar l'Oracle de la Matriu, introdueix la teva API key de Google Gemini.</p>
+        <input type="password" id="api-key-input" class="val-input" placeholder="AIzaSy..." style="margin-bottom: 10px;">
+        <button class="btn-cmd btn-pink" onclick="saveKeyAndShowChat()">CONNECTAR AMB L'ORACLE</button>
+        <p style="font-size: 0.65rem; margin-top: 15px; opacity: 0.6;">
+            No tens API key? <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: var(--neon-blue);">Genera'n una aquí</a>
+        </p>
+    </div>
+
+    <!-- INTERFAZ DE CHAT -->
+    <div id="chat-interface">
+        <div class="chat-header">
+            <div class="chat-status">
+                <span class="status-indicator"></span>
+                <span>ORACLE_CORE [ONLINE]</span>
+            </div>
+            <span class="chat-reset" onclick="resetApiKey()">[RESET]</span>
+        </div>
+        
+        <div id="chat-window">
+            <!-- Los mensajes se añadirán aquí dinámicamente -->
+        </div>
+        
+        <div class="chat-actions">
+            <button class="btn-cmd btn-chat-action" onclick="requestComprehensionQuestion()">
+                PREGUNTA DE COMPRENSIÓ
+            </button>
+        </div>
+        
+        <div class="chat-input-container">
+            <input type="text" id="user-query" placeholder="Pregunta a l'Oracle..." onkeypress="handleEnterKey(event)">
+            <button class="btn-cmd" onclick="sendUserQuery()">ASK</button>
+        </div>
+    </div>
+
+</div>
+
+<!-- SCRIPTS -->
+<script src="../js/core.js"></script>
+<script src="../js/gemini-ai.js"></script>
+<script src="js/intervals.js"></script>
+
+</body>
+</html>
