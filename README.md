@@ -1,5 +1,5 @@
 🕸️ PROJECTE LA MATRIU: Bloc estadística i probabilitat
-ESTAT DEL SISTEMA: Actiu | PROTOCOL: Tutorització Socràtica 2.5 AUTOR: Germán Pazó | OBJECTIU: TFM - Innovació Pedagògica en Estadística i Probabilitat
+ESTAT DEL SISTEMA: Actiu | PROTOCOL: Tutorització Socràtica 2.5 AUTOR: Germán Pazó | OBJECTIU: TFM - Innovació Pedagògica en Estadística i Probabilitat.
 
 👁️‍🗨️ Què és "La Matriu"?
 Aquest projecte és una eina educativa dissenyada per a l'aprenentatge d'estadística i probabilitat. Mitjançant una interfície d'estètica cyberpunk, l'estudiant s'enfronta a la generació de dades en temps real i a exercicis infinits.
