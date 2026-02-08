@@ -1,0 +1,431 @@
+/**
+ * LA MATRIU - EXERCISE STYLES
+ * Estilos específicos para las páginas de ejercicios
+ */
+
+/* ========================================
+   LAYOUT DE EJERCICIOS (Split Screen)
+   ======================================== */
+.exercise-layout {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.main-content {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+    border-right: 1px solid rgba(0, 255, 249, 0.2);
+}
+
+.ai-sidebar {
+    width: 380px;
+    background: var(--panel-bg-solid);
+    display: flex;
+    flex-direction: column;
+    border-left: 2px solid var(--neon-blue);
+}
+
+/* ========================================
+   HEADER DE EJERCICIO
+   ======================================== */
+.exercise-header {
+    border-left: 4px solid var(--neon-blue);
+    padding: 10px 20px;
+    margin-bottom: 20px;
+    background: rgba(0, 255, 249, 0.03);
+}
+
+.exercise-header .breadcrumb {
+    font-size: 0.6rem;
+    color: var(--neon-blue);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.exercise-header h1 {
+    margin-top: 5px;
+    font-size: 1.5rem;
+}
+
+/* ========================================
+   TABLAS DE DATOS
+   ======================================== */
+.data-table,
+.preview-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 5px;
+    margin-top: 15px;
+    font-size: 0.85rem;
+}
+
+.data-table th,
+.preview-table th {
+    color: var(--neon-blue);
+    text-align: left;
+    padding: 8px;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.data-table td,
+.preview-table td {
+    padding: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.data-table tr:hover,
+.preview-table tr:hover {
+    background: rgba(0, 255, 249, 0.02);
+}
+
+/* ========================================
+   DISPLAY DE DATOS
+   ======================================== */
+.data-display {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    padding: 15px;
+    border-radius: 3px;
+    font-family: 'Orbitron', monospace;
+    color: var(--neon-yellow);
+    font-size: 0.9rem;
+    margin: 15px 0;
+    word-wrap: break-word;
+}
+
+.stats-display {
+    display: flex;
+    gap: 20px;
+    font-size: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 10px;
+    margin-top: 10px;
+}
+
+.stat-item {
+    display: flex;
+    gap: 5px;
+}
+
+.stat-label {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.stat-value {
+    color: var(--neon-pink);
+    font-weight: bold;
+}
+
+/* ========================================
+   INPUTS EN TABLAS
+   ======================================== */
+.xi-in,
+.freq-in {
+    width: 70px;
+    padding: 5px;
+    font-size: 0.85rem;
+}
+
+/* ========================================
+   AI SIDEBAR - SETUP
+   ======================================== */
+#api-setup {
+    padding: 30px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    text-align: center;
+}
+
+#api-setup .lock-icon {
+    font-size: 3rem;
+    color: var(--neon-pink);
+    margin-bottom: 10px;
+}
+
+#api-setup h2 {
+    font-family: 'Orbitron';
+    color: var(--neon-pink);
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+
+#api-setup p {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.75rem;
+    line-height: 1.5;
+    max-width: 300px;
+}
+
+/* ========================================
+   AI SIDEBAR - CHAT
+   ======================================== */
+#chat-interface {
+    display: none;
+    flex-direction: column;
+    height: 100%;
+}
+
+.chat-header {
+    padding: 15px;
+    border-bottom: 1px solid var(--neon-blue);
+    font-family: 'Orbitron';
+    font-size: 0.7rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--neon-green);
+    box-shadow: 0 0 8px var(--neon-green);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.chat-reset {
+    cursor: pointer;
+    color: var(--neon-pink);
+    transition: 0.3s;
+}
+
+.chat-reset:hover {
+    text-shadow: 0 0 8px var(--neon-pink);
+}
+
+#chat-window {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Scrollbar personalizado */
+#chat-window::-webkit-scrollbar {
+    width: 6px;
+}
+
+#chat-window::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+#chat-window::-webkit-scrollbar-thumb {
+    background: var(--neon-blue);
+    border-radius: 3px;
+}
+
+#chat-window::-webkit-scrollbar-thumb:hover {
+    background: var(--hover-glow);
+}
+
+/* ========================================
+   MENSAJES DEL CHAT
+   ======================================== */
+.msg {
+    padding: 12px;
+    border-radius: 5px;
+    max-width: 85%;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+.msg-ia {
+    background: rgba(0, 255, 249, 0.08);
+    align-self: flex-start;
+    border-left: 3px solid var(--neon-blue);
+}
+
+.msg-user {
+    background: rgba(255, 0, 204, 0.08);
+    align-self: flex-end;
+    border-right: 3px solid var(--neon-pink);
+    text-align: right;
+}
+
+.msg-system {
+    background: rgba(251, 191, 36, 0.08);
+    align-self: center;
+    border: 1px solid var(--neon-yellow);
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--neon-yellow);
+    max-width: 90%;
+}
+
+/* ========================================
+   INPUT DEL CHAT
+   ======================================== */
+.chat-input-container {
+    padding: 15px;
+    border-top: 1px solid rgba(0, 255, 249, 0.2);
+    display: flex;
+    gap: 8px;
+}
+
+#user-query {
+    flex: 1;
+    background: #000;
+    border: 1px solid var(--neon-blue);
+    color: #fff;
+    padding: 8px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.85rem;
+}
+
+#user-query:focus {
+    outline: none;
+    box-shadow: 0 0 10px rgba(0, 255, 249, 0.3);
+}
+
+/* ========================================
+   BOTONES DE ACCIÓN DEL CHAT
+   ======================================== */
+.chat-actions {
+    display: flex;
+    gap: 8px;
+    padding: 10px 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.btn-chat-action {
+    flex: 1;
+    padding: 8px;
+    font-size: 0.65rem;
+}
+
+/* ========================================
+   NAVEGACIÓN ENTRE EJERCICIOS
+   ======================================== */
+.exercise-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 30px;
+    padding: 20px;
+    border-top: 1px solid rgba(0, 255, 249, 0.1);
+}
+
+.nav-step {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.nav-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+/* ========================================
+   INDICADORES DE PROGRESO
+   ======================================== */
+.progress-indicator {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border-left: 3px solid var(--neon-blue);
+}
+
+.progress-step {
+    flex: 1;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-step.completed {
+    background: var(--neon-green);
+    box-shadow: 0 0 8px var(--neon-green);
+}
+
+.progress-step.active {
+    background: var(--neon-blue);
+    box-shadow: 0 0 8px var(--neon-blue);
+}
+
+.progress-step.active::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 1024px) {
+    .exercise-layout {
+        flex-direction: column;
+        height: auto;
+    }
+    
+    .main-content {
+        border-right: none;
+        border-bottom: 2px solid rgba(0, 255, 249, 0.2);
+    }
+    
+    .ai-sidebar {
+        width: 100%;
+        min-height: 400px;
+        border-left: none;
+        border-top: 2px solid var(--neon-blue);
+    }
+    
+    .two-col-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        padding: 15px;
+    }
+    
+    .exercise-nav {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .nav-buttons {
+        width: 100%;
+        flex-direction: column;
+    }
+    
+    .btn-cmd {
+        width: 100%;
+    }
+}
