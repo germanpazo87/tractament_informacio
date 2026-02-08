@@ -27,6 +27,51 @@ body {
         transparent 0
     );
     background-size: 40px 40px;
+    color: #e0ffff;
+    font-family: 'Share Tech Mono', monospace;
+}
+/* =========================
+   TIPOGRAFIA
+========================= */
+h1,
+h2,
+h3,
+.orbitron {
+    font-family: 'Orbitron', sans-serif;
+    text-shadow: 0 0 10px var(--neon-blue);
+}
+/* =========================
+   HEADER
+========================= */
+header {
+    border-left: 4px solid var(--neon-blue);
+    padding: 15px 25px;
+    margin-bottom: 40px;
+    background: rgba(0, 255, 249, 0.03);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* =========================
+   BOTÓ RETORN
+========================= */
+.btn-return {
+    font-family: 'Orbitron', sans-serif;
+    background: transparent;
+    border: 1px solid var(--neon-blue);
+    color: var(--neon-blue);
+    padding: 8px 15px;
+    font-size: 0.7rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.btn-return:hover {
+    background: var(--neon-blue);
+    color: var(--dark-bg);
+    box-shadow: 0 0 15px var(--neon-blue);
 }
 
 body::after {
