@@ -1,0 +1,30 @@
+@import url('');
+
+:root { --neon-blue: #00fff9; --neon-pink: #ff00cc; --neon-yellow: #fbbf24; --dark-bg: #010409; --panel-bg: rgba(13, 17, 23, 0.95); }
+
+body { margin: 0; padding: 20px; background-color: var(--dark-bg); color: #e0ffff; font-family: 'Share Tech Mono', monospace; }
+
+.container { max-width: 1400px; margin: 0 auto; }
+
+header { border-left: 4px solid var(--neon-blue); padding: 15px 25px; margin-bottom: 30px; background: rgba(0, 255, 249, 0.03); display: flex; justify-content: space-between; align-items: center; }
+
+.breadcrumb { font-size: 0.75rem; color: rgba(0, 255, 249, 0.6); letter-spacing: 1px; }
+
+.breadcrumb a { color: var(--neon-blue); text-decoration: none; }
+
+h1 { font-family: 'Orbitron', sans-serif; font-size: 1.3rem; margin: 5px 0 0 0; text-shadow: 0 0 10px var(--neon-blue); }
+
+footer { margin-top: 50px; padding: 25px 0; border-top: 1px solid rgba(0, 255, 249, 0.1); text-align: center; font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; color: #94a3b8; }
+body { background-image: radial-gradient(circle at 2px 2px, rgba(0, 255, 249, 0.05) 1px, transparent 0); background-size: 40px 40px; }
+
+body::after { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.1) 0px, rgba(0,0,0,0.1) 1px, transparent 1px, transparent 2px); pointer-events: none; z-index: 100; }
+
+.protocol-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+
+.protocol-card { background: var(--panel-bg); border: 1px solid rgba(0, 255, 249, 0.2); padding: 25px; text-decoration: none; color: white; transition: 0.3s; position: relative; clip-path: polygon(0 0, 100% 0, 100% 85%, 90% 100%, 0 100%); display: flex; flex-direction: column; min-height: 200px; }
+
+.protocol-card:hover:not(.locked) { border-color: var(--neon-blue); transform: scale(1.02); box-shadow: 0 0 15px rgba(0, 255, 249, 0.1); }
+
+.protocol-id { font-family: 'Orbitron', sans-serif; font-size: 0.7rem; color: var(--neon-blue); margin-bottom: 10px; display: block; } .protocol-card h3 { font-family: 'Orbitron', sans-serif; font-size: 1.1rem; margin: 5px 0 15px 0; color: #fff; } .protocol-card p { color: #94a3b8; font-size: 0.85rem; line-height: 1.4; margin: 0; } .status-tag { margin-top: auto; padding-top: 20px; font-size: 0.65rem; color: var(--neon-blue); text-transform: uppercase; border-top: 1px solid rgba(255,255,255,0.05); }
+
+.locked { opacity: 0.4; cursor: not-allowed; border-color: #333; } .locked-icon { position: absolute; top: 20px; right: 20px; font-size: 0.9rem; }
