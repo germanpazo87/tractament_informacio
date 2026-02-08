@@ -1,4 +1,4 @@
-🕸️ PROJECTE LA MATRIU: Escàner d'Intervals
+🕸️ PROJECTE LA MATRIU: Bloc estadística i probabilitat
 ESTAT DEL SISTEMA: Actiu | PROTOCOL: Tutorització Socràtica 2.5 AUTOR: Germán Pazó | OBJECTIU: TFM - Innovació Pedagògica en Estadística i Probabilitat
 
 👁️‍🗨️ Què és "La Matriu"?
