@@ -19,49 +19,11 @@ let userMarks = {};
 function initExercise() {
     console.log('🎯 Iniciant exercici d\'intervals...');
     
-    // Verificar si hi ha dades guardades
-    checkForSavedData();
-    
-    // Generar dades noves si no n'hi ha
-    if (rawData.length === 0) {
-        generateNewData();
-    }
+    // Generar dades noves
+    generateNewData();
     
     // Inicialitzar context per Gemini
     updateGeminiContext();
-}
-
-/**
- * Comprova si hi ha dades guardades d'una sessió anterior
- */
-function checkForSavedData() {
-    if (hasRecentData()) {
-        const savedData = getExerciseData();
-        if (savedData && savedData.length > 0) {
-            const btnLoad = document.getElementById('btn-load-saved');
-            if (btnLoad) {
-                btnLoad.style.display = 'inline-block';
-            }
-        }
-    }
-}
-
-/**
- * Carrega les dades guardades
- */
-function loadSavedData() {
-    const savedData = getExerciseData();
-    if (savedData && savedData.length > 0) {
-        rawData = savedData;
-        stats = calculateBasicStats(rawData);
-        displayData();
-        updateGeminiContext();
-        showNotification('Dades anteriors carregades', 'success');
-        
-        // Amagar botó de carregar
-        const btnLoad = document.getElementById('btn-load-saved');
-        if (btnLoad) btnLoad.style.display = 'none';
-    }
 }
 
 /* ========================================
@@ -81,7 +43,6 @@ function generateNewData() {
     
     stats = calculateBasicStats(rawData);
     displayData();
-    updateHints();
     clearIntervals();
     
     // Guardar dades
@@ -102,26 +63,10 @@ function displayData() {
     const maxSpan = document.getElementById('stat-max');
     const countSpan = document.getElementById('stat-count');
     
-    if (displayDiv) displayDiv.textContent = formatDataArray(rawData);
+    if (displayDiv) displayDiv.textContent = rawData.join(' , ');
     if (minSpan) minSpan.textContent = stats.min;
     if (maxSpan) maxSpan.textContent = stats.max;
     if (countSpan) countSpan.textContent = stats.count;
-}
-
-/**
- * Actualitza els hints (pistes) per ajudar l'estudiant
- */
-function updateHints() {
-    const hintMin = document.getElementById('hint-min');
-    const hintAmp = document.getElementById('hint-amp');
-    
-    if (hintMin) hintMin.textContent = stats.min;
-    
-    if (hintAmp) {
-        const range = stats.max - stats.min;
-        const suggestedAmp = Math.ceil(range / 5);
-        hintAmp.textContent = `${suggestedAmp} (per cobrir rang de ${range})`;
-    }
 }
 
 /* ========================================
@@ -144,19 +89,9 @@ function updateIntervals() {
         return;
     }
     
-    // Validar que l'inici sigui <= mínim
-    if (start > stats.min) {
-        setValidationClass(startInput, false);
-    } else {
-        setValidationClass(startInput, true);
-    }
-    
     // Generar intervals
     currentIntervals = generateIntervals(start, amp, 5);
     displayIntervals();
-    
-    // Verificar si tots els intervals estan coberts
-    checkCoverage();
     
     // Actualitzar context de Gemini
     updateGeminiContext();
@@ -194,24 +129,23 @@ function displayIntervals() {
     
     tbody.innerHTML = '';
     
+    if (currentIntervals.length === 0) return;
+    
     currentIntervals.forEach((interval, index) => {
         const row = document.createElement('tr');
+        row.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
         row.innerHTML = `
-            <td>${interval.notation}</td>
-            <td>
+            <td style="padding: 10px;">${interval.notation}</td>
+            <td style="padding: 10px;">
                 <input 
                     type="number" 
                     class="val-input xi-in" 
                     id="mark-${index}"
                     data-index="${index}"
                     data-correct="${interval.correctMark}"
-                    placeholder="?"
                     oninput="validateMark(${index})"
-                    step="0.1"
-                    style="width: 100px; padding: 5px;">
-            </td>
-            <td id="status-${index}" style="font-size: 0.7rem; color: rgba(255,255,255,0.5);">
-                Pendent
+                    step="0.5"
+                    style="width: 70px; padding: 2px;">
             </td>
         `;
         tbody.appendChild(row);
@@ -225,20 +159,10 @@ function clearIntervals() {
     const tbody = document.getElementById('interval-body');
     if (!tbody) return;
     
-    tbody.innerHTML = `
-        <tr>
-            <td colspan="3" style="text-align: center; color: rgba(255,255,255,0.4); padding: 30px;">
-                Configura els paràmetres per veure els intervals
-            </td>
-        </tr>
-    `;
+    tbody.innerHTML = '';
     
     currentIntervals = [];
     userMarks = {};
-    
-    // Deshabilitar botó de continuar
-    const btnContinue = document.getElementById('btn-continue');
-    if (btnContinue) btnContinue.disabled = true;
 }
 
 /* ========================================
@@ -250,7 +174,6 @@ function clearIntervals() {
  */
 function validateMark(index) {
     const input = document.getElementById(`mark-${index}`);
-    const status = document.getElementById(`status-${index}`);
     
     if (!input) return;
     
@@ -259,7 +182,6 @@ function validateMark(index) {
     
     if (!isValidNumber(userValue)) {
         input.classList.remove('correct', 'incorrect');
-        if (status) status.textContent = 'Pendent';
         userMarks[index] = null;
         return;
     }
@@ -267,12 +189,8 @@ function validateMark(index) {
     // Validar amb tolerància
     const isCorrect = numbersEqual(userValue, correctValue, 0.01);
     
-    setValidationClass(input, isCorrect);
-    
-    if (status) {
-        status.textContent = isCorrect ? '✓ Correcte' : '✗ Incorrecte';
-        status.style.color = isCorrect ? 'var(--neon-green)' : 'var(--neon-pink)';
-    }
+    // Aplicar classe visual
+    input.className = "val-input xi-in " + (isCorrect ? "correct" : "incorrect");
     
     userMarks[index] = {
         value: userValue,
@@ -296,29 +214,11 @@ function checkAllCorrect() {
         return userMarks[index] && userMarks[index].correct;
     });
     
-    const btnContinue = document.getElementById('btn-continue');
-    if (btnContinue) {
-        btnContinue.disabled = !allCorrect;
-    }
-    
     if (allCorrect) {
         showNotification('Excel·lent! Tots els intervals són correctes', 'success', 4000);
     }
     
     return allCorrect;
-}
-
-/**
- * Comprova si els intervals cobreixen totes les dades
- */
-function checkCoverage() {
-    if (currentIntervals.length === 0) return;
-    
-    const lastInterval = currentIntervals[currentIntervals.length - 1];
-    
-    if (lastInterval.upper < stats.max) {
-        showNotification('⚠️ Els intervals no cobreixen totes les dades', 'error', 3000);
-    }
 }
 
 /* ========================================
@@ -352,34 +252,6 @@ function handleEnterKey(event) {
     if (event.key === 'Enter') {
         sendUserQuery();
     }
-}
-
-/* ========================================
-   NAVEGACIÓ
-   ======================================== */
-
-/**
- * Guarda els resultats i continua al següent exercici
- */
-function saveAndContinue() {
-    if (!checkAllCorrect()) {
-        showNotification('Completa tots els intervals correctament abans de continuar', 'error');
-        return;
-    }
-    
-    // Guardar resultats de l'exercici
-    saveExerciseResults('intervals', {
-        completed: true,
-        data: rawData,
-        intervals: currentIntervals,
-        userMarks: userMarks
-    });
-    
-    showNotification('Progrés guardat! Redirigint...', 'success', 2000);
-    
-    setTimeout(() => {
-        window.location.href = 'frequencies.html';
-    }, 2000);
 }
 
 /* ========================================
