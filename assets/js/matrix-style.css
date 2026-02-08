@@ -1,4 +1,5 @@
-@import url ("");
+@import url('');
+
 :root { --neon-blue: #00fff9; --neon-pink: #ff00cc; --neon-yellow: #fbbf24; --dark-bg: #010409; --panel-bg: rgba(13, 17, 23, 0.95); }
 
 body { margin: 0; padding: 20px; background-color: var(--dark-bg); color: #e0ffff; font-family: 'Share Tech Mono', monospace; }
@@ -7,7 +8,9 @@ body { margin: 0; padding: 20px; background-color: var(--dark-bg); color: #e0fff
 
 header { border-left: 4px solid var(--neon-blue); padding: 15px 25px; margin-bottom: 30px; background: rgba(0, 255, 249, 0.03); display: flex; justify-content: space-between; align-items: center; }
 
-.breadcrumb { font-size: 0.75rem; color: rgba(0, 255, 249, 0.6); letter-spacing: 1px; } .breadcrumb a { color: var(--neon-blue); text-decoration: none; }
+.breadcrumb { font-size: 0.75rem; color: rgba(0, 255, 249, 0.6); letter-spacing: 1px; }
+
+.breadcrumb a { color: var(--neon-blue); text-decoration: none; }
 
 h1 { font-family: 'Orbitron', sans-serif; font-size: 1.3rem; margin: 5px 0 0 0; text-shadow: 0 0 10px var(--neon-blue); }
 
