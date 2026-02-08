@@ -17,7 +17,7 @@ jobs:
 
       - name: Inject API Key
         run: |
-          find . -type f -name"*.html" -o -name"*.js" -exec sed -i "s/REPLACE_ME_WITH_API_KEY/${{secrets.GEMINI_API_KEY }}/g" {} +
+          find . -type f \ -name "*.html" -o -name "*.js" \) -exec sed -i "s/REPLACE_ME_WITH_API_KEY/${{secrets.GEMINI_API_KEY }}/g" {} +
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
