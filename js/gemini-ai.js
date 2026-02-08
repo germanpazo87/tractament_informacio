@@ -1,7 +1,7 @@
 /**
  * LA MATRIU - GEMINI AI
  * Integració completa amb Google Gemini
- * Funcions: Chat socràtic, Nivells d'aprenentatge, Historial i Injecció de Key
+ * Funcions: Chat socràtic, Nivells d'aprenentatge, Multiidioma, Historial
  */
 
 /* ========================================
@@ -25,6 +25,7 @@ const API_KEY_PLACEHOLDER = 'REPLACE_ME_WITH_API_KEY';
 let conversationHistory = [];
 let userLevel = 'medium'; 
 let currentExerciseContext = null;
+let selectedLanguage = 'ca'; // Idioma per defecte: català
 
 /* ========================================
    GESTIÓ DE CONTEXT I NIVELLS
@@ -52,6 +53,59 @@ function analyzeUserLevel(userResponse) {
 }
 
 /* ========================================
+   GESTIÓ D'IDIOMES
+   ======================================== */
+
+/**
+ * Canvia l'idioma de l'Oracle
+ */
+function changeLanguage() {
+    const select = document.getElementById('language-select');
+    if (select) {
+        selectedLanguage = select.value;
+        localStorage.setItem('matriu_language', selectedLanguage);
+        console.log(`🌐 Idioma canviat a: ${selectedLanguage.toUpperCase()}`);
+        addMessageToChat(getLanguageConfirmation(), 'system');
+    }
+}
+
+/**
+ * Carrega l'idioma guardat
+ */
+function loadSavedLanguage() {
+    const saved = localStorage.getItem('matriu_language');
+    if (saved) {
+        selectedLanguage = saved;
+        const select = document.getElementById('language-select');
+        if (select) select.value = saved;
+    }
+}
+
+/**
+ * Obté el missatge de confirmació segons l'idioma
+ */
+function getLanguageConfirmation() {
+    const messages = {
+        ca: 'Idioma canviat a català',
+        es: 'Idioma cambiado a español',
+        en: 'Language changed to English'
+    };
+    return messages[selectedLanguage] || messages.ca;
+}
+
+/**
+ * Obté les instruccions d'idioma per al prompt
+ */
+function getLanguageInstruction() {
+    const instructions = {
+        ca: 'Respon SEMPRE en català.',
+        es: 'Responde SIEMPRE en español.',
+        en: 'Always respond in English.'
+    };
+    return instructions[selectedLanguage] || instructions.ca;
+}
+
+/* ========================================
    CONSTRUCCIÓ DE PROMPTS COMPLEXOS
    ======================================== */
 
@@ -63,6 +117,9 @@ function buildSystemPrompt(helpType) {
     };
     
     const basePrompt = `Ets l'Oracle de la Matriu, un tutor socràtic especialitzat en estadística per a estudiants d'ESO.
+
+${getLanguageInstruction()}
+
 NIVELL DE L'ESTUDIANT: ${userLevel.toUpperCase()}
 INSTRUCCIONS DE NIVELL: ${levelInstructions[userLevel]}
 
@@ -70,7 +127,7 @@ NORMES:
 - Mai donis la resposta directament.
 - Utilitza preguntes guia per ajudar l'estudiant a pensar.
 - Sigues breu i concís (màxim 3-4 frases).
-- Estètica cyberpunk/matrix.`;
+- Estètica cyberpunk/matrix quan sigui apropiat.`;
 
     return helpType === 'contextual' 
         ? basePrompt + "\nTIPUS: Ajuda contextual. Ofereix pistes sobre l'error o el següent pas."
@@ -163,19 +220,29 @@ function addMessageToChat(message, sender = 'ia') {
     chatWindow.scrollTop = chatWindow.scrollHeight;
 }
 
+function addSystemMessage(message) {
+    addMessageToChat(message, 'system');
+}
+
 async function handleUserMessage(message) {
     if (!message?.trim()) return;
+    
+    // IMPORTANT: Mostrar pregunta de l'usuari
     addMessageToChat(message, 'user');
+    
+    // Mostrar indicador de "processant"
     addMessageToChat('● ● ● Processant...', 'ia');
 
     try {
         const response = await getContextualHelp(message);
         const chatWindow = document.getElementById('chat-window');
-        if (chatWindow) chatWindow.removeChild(chatWindow.lastChild);
+        // Eliminar missatge de "processant"
+        if (chatWindow && chatWindow.lastChild) chatWindow.removeChild(chatWindow.lastChild);
+        // Mostrar resposta de l'IA
         addMessageToChat(response, 'ia');
     } catch (error) {
         const chatWindow = document.getElementById('chat-window');
-        if (chatWindow) chatWindow.removeChild(chatWindow.lastChild);
+        if (chatWindow && chatWindow.lastChild) chatWindow.removeChild(chatWindow.lastChild);
         addMessageToChat(`ERROR: ${error.message}`, 'system');
     }
 }
@@ -183,20 +250,33 @@ async function handleUserMessage(message) {
 function sendUserQuery() {
     const input = document.getElementById('user-query');
     const msg = input?.value.trim();
-    if (msg) { handleUserMessage(msg); input.value = ''; }
+    if (msg) { 
+        handleUserMessage(msg); 
+        input.value = ''; 
+    }
 }
 
 async function requestComprehensionQuestion() {
-    addMessageToChat('Generant pregunta de comprensió...', 'system');
+    addSystemMessage('Generant pregunta de comprensió...');
     try {
         const q = await getComprehensionQuestion();
         addMessageToChat(q, 'ia');
-    } catch (e) { addMessageToChat('Error al generar pregunta', 'system'); }
+    } catch (e) { 
+        addSystemMessage('Error al generar pregunta'); 
+    }
 }
 
 function saveKeyAndShowChat() {
     const key = document.getElementById('api-key-input')?.value.trim();
-    if (saveApiKey(key)) refreshChatUI();
+    if (saveApiKey(key)) {
+        refreshChatUI();
+        addSystemMessage("Connexió establerta amb l'Oracle... [ONLINE]");
+    }
+}
+
+function resetApiKey() {
+    clearApiKey();
+    location.reload();
 }
 
 /* ========================================
@@ -206,22 +286,28 @@ function saveKeyAndShowChat() {
 function initGeminiAI() {
     console.log('🤖 LA MATRIU - Inicialitzant sistema...');
 
-    // 1. Detectar injecció (Variable global definida a l'HTML)
+    // 1. Carregar idioma guardat
+    loadSavedLanguage();
+
+    // 2. Detectar injecció (Variable global definida a l'HTML)
     if (typeof INJECTED_API_KEY !== 'undefined' && isKeyOperational(INJECTED_API_KEY)) {
         saveApiKey(INJECTED_API_KEY);
         console.log('✅ Clau injectada automàticament.');
     }
 
-    // 2. Intentar obrir la UI
+    // 3. Intentar obrir la UI
     const isUnlocked = refreshChatUI();
     if (isUnlocked) {
-        addMessageToChat("Connexió establerta amb l'Oracle... [ONLINE]", 'system');
+        addSystemMessage("Connexió establerta amb l'Oracle... [ONLINE]");
     }
 
-    // Event Listeners
-    document.getElementById('user-query')?.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') sendUserQuery();
-    });
+    // 4. Event Listeners
+    const queryInput = document.getElementById('user-query');
+    if (queryInput) {
+        queryInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendUserQuery();
+        });
+    }
 }
 
 if (document.readyState === 'loading') {
