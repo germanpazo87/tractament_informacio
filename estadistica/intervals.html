@@ -14,8 +14,6 @@
 </head>
 <body>
 
-<div class="exercise-layout">
-
 <!-- CONTENIDO PRINCIPAL -->
 <div class="main-content">
     
@@ -108,7 +106,14 @@
                 <span class="status-indicator"></span>
                 <span>ORACLE_CORE [ONLINE]</span>
             </div>
-            <span class="chat-reset" onclick="resetApiKey()">[RESET]</span>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <select id="language-select" onchange="changeLanguage()" style="background: #000; border: 1px solid var(--neon-blue); color: var(--neon-blue); padding: 3px 8px; font-size: 0.65rem; font-family: 'Orbitron';">
+                    <option value="ca">CAT</option>
+                    <option value="es">ESP</option>
+                    <option value="en">ENG</option>
+                </select>
+                <span class="chat-reset" onclick="resetApiKey()">[RESET]</span>
+            </div>
         </div>
         
         <div id="chat-window">
@@ -128,7 +133,7 @@
     </div>
 
 </div>
-<!-- Fi de exercise-layout -->
+<!-- Fi de ai-sidebar -->
 
 <!-- SCRIPTS -->
 <script>
