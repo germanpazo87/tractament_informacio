@@ -132,15 +132,9 @@
 
 <!-- SCRIPTS -->
 <script>
-    // API Key injectada pel deploy.yml de GitHub Actions
-    // Aquest valor serà substituït automàticament en producció
-    const INJECTED_API_KEY = 'REPLACE_ME_WITH_API_KEY';
-    
-    // Si hi ha una clau injectada vàlida, guardar-la automàticament
-    if (INJECTED_API_KEY && INJECTED_API_KEY !== 'REPLACE_ME_WITH_API_KEY' && INJECTED_API_KEY.length > 20) {
-        localStorage.setItem('la_matriu_key', INJECTED_API_KEY);
-        console.log('✅ API Key injectada automàticament');
-    }
+// API Key injectada automàticament pel deploy.yml
+// NO MODIFIQUIS aquesta línia - serà substituïda en producció
+var INJECTED_API_KEY = 'REPLACE_ME_WITH_API_KEY';
 </script>
 <script src="../js/core.js"></script>
 <script src="../js/gemini-ai.js"></script>
