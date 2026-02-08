@@ -11,14 +11,28 @@ permissions:
 jobs: 
   build-and-deploy: 
     runs-on: ubuntu-latest 
+    
     steps: 
       - name: Checkout 
         uses: actions/checkout@v4
-
+      
       - name: Inject API Key
         run: |
-          find . -type f \( -name "*.html" -o -name "*.js" \) -exec sed -i "s/REPLACE_ME_WITH_API_KEY/${{secrets.GEMINI_API_KEY }}/g" {} +
-
+          echo "🔑 Injectant API Key..."
+          # Buscar i substituir en tots els fitxers HTML i JS
+          find . -type f \( -name "*.html" -o -name "*.js" \) -exec sed -i "s/REPLACE_ME_WITH_API_KEY/${{ secrets.GEMINI_API_KEY }}/g" {} +
+          echo "✅ API Key injectada"
+          
+      - name: Verify Injection
+        run: |
+          echo "🔍 Verificant substitució..."
+          # Comprovar que no quedi cap REPLACE_ME_WITH_API_KEY
+          if grep -r "REPLACE_ME_WITH_API_KEY" --include="*.html" --include="*.js" .; then
+            echo "⚠️ ADVERTÈNCIA: Encara hi ha fitxers sense substituir"
+          else
+            echo "✅ Tots els placeholders han estat substituïts"
+          fi
+      
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
