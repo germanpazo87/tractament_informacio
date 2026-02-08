@@ -1,266 +1,66 @@
-/**
- * LA MATRIU - INTERVALS.JS
- * Lògica específica de l'exercici de creació d'intervals
- */
-
-// Variables globals de l'exercici
 let rawData = [];
-let stats = { min: 0, max: 0, count: 0 };
-let currentIntervals = [];
-let userMarks = {};
+let stats = { min: 0, max: 0 };
+let API_KEY = localStorage.getItem('la_matriu_key');
 
-/* ========================================
-   INICIALITZACIÓ
-   ======================================== */
+window.onload = () => { 
+    if(typeof INJECTED_API_KEY !== 'undefined' && INJECTED_API_KEY !== 'REPLACE_ME_WITH_API_KEY') {
+        API_KEY = INJECTED_API_KEY; showChat();
+    } else if(API_KEY) { showChat(); }
+    initProtocol(); 
+};
 
-/**
- * Inicialitza l'exercici quan es carrega la pàgina
- */
-function initExercise() {
-    console.log('🎯 Iniciant exercici d\'intervals...');
-    
-    // Generar dades noves
-    generateNewData();
-    
-    // Inicialitzar context per Gemini
-    updateGeminiContext();
+function initProtocol() {
+    rawData = Array.from({length: 12}, () => Math.floor(Math.random() * 60) + 10);
+    stats.min = Math.min(...rawData); stats.max = Math.max(...rawData);
+    document.getElementById('data-display').innerText = rawData.join(' , ');
+    document.getElementById('real-min').innerText = stats.min;
+    document.getElementById('real-max').innerText = stats.max;
+    updateUI();
 }
 
-/* ========================================
-   GENERACIÓ I VISUALITZACIÓ DE DADES
-   ======================================== */
-
-/**
- * Genera noves dades aleatòries
- */
-function generateNewData() {
-    rawData = generateRandomData({
-        count: 12,
-        min: 10,
-        max: 70,
-        allowDecimals: false
-    });
-    
-    stats = calculateBasicStats(rawData);
-    displayData();
-    clearIntervals();
-    
-    // Guardar dades
-    saveExerciseData(rawData);
-    
-    // Actualitzar context de Gemini
-    updateGeminiContext();
-    
-    showNotification('Noves dades generades', 'success');
-}
-
-/**
- * Mostra les dades a la interfície
- */
-function displayData() {
-    const displayDiv = document.getElementById('data-display');
-    const minSpan = document.getElementById('stat-min');
-    const maxSpan = document.getElementById('stat-max');
-    const countSpan = document.getElementById('stat-count');
-    
-    if (displayDiv) displayDiv.textContent = rawData.join(' , ');
-    if (minSpan) minSpan.textContent = stats.min;
-    if (maxSpan) maxSpan.textContent = stats.max;
-    if (countSpan) countSpan.textContent = stats.count;
-}
-
-/* ========================================
-   GESTIÓ D'INTERVALS
-   ======================================== */
-
-/**
- * Actualitza la taula d'intervals quan l'usuari canvia els paràmetres
- */
-function updateIntervals() {
-    const startInput = document.getElementById('in-start');
-    const ampInput = document.getElementById('in-amp');
-    
-    const start = parseFloat(startInput.value);
-    const amp = parseFloat(ampInput.value);
-    
-    // Validar inputs
-    if (!isValidNumber(start) || !isValidNumber(amp) || amp <= 0) {
-        clearIntervals();
-        return;
+function updateUI() {
+    const start = parseFloat(document.getElementById('in-start').value);
+    const amp = parseFloat(document.getElementById('in-amp').value);
+    const body = document.getElementById('interval-body');
+    body.innerHTML = '';
+    if(isNaN(start) || isNaN(amp) || amp <= 0) return;
+    for(let i=0; i<5; i++) {
+        let li = start + (i*amp); let ls = li + amp;
+        body.innerHTML += `<tr><td>[${li}, ${ls})</td><td><input type="number" class="val-input xi-in" data-li="${li}" data-ls="${ls}" oninput="valXi(this)" style="width:70px; padding:2px;"></td></tr>`;
     }
-    
-    // Generar intervals
-    currentIntervals = generateIntervals(start, amp, 5);
-    displayIntervals();
-    
-    // Actualitzar context de Gemini
-    updateGeminiContext();
 }
 
-/**
- * Genera els intervals
- */
-function generateIntervals(start, amplitude, count) {
-    const intervals = [];
-    
-    for (let i = 0; i < count; i++) {
-        const lowerBound = start + (i * amplitude);
-        const upperBound = lowerBound + amplitude;
-        const mark = (lowerBound + upperBound) / 2;
-        
-        intervals.push({
-            index: i,
-            lower: lowerBound,
-            upper: upperBound,
-            correctMark: mark,
-            notation: `[${lowerBound}, ${upperBound})`
+function valXi(el) {
+    const target = (parseFloat(el.dataset.li) + parseFloat(el.dataset.ls)) / 2;
+    el.className = "val-input xi-in " + (parseFloat(el.value) === target ? "correct" : "incorrect");
+}
+
+function saveKey() {
+    const key = document.getElementById('api-key-input').value.trim();
+    if(key.length > 10) { localStorage.setItem('la_matriu_key', key); API_KEY = key; showChat(); }
+}
+
+function clearKey() { localStorage.removeItem('la_matriu_key'); location.reload(); }
+function showChat() { document.getElementById('api-setup').style.display='none'; document.getElementById('chat-interface').style.display='flex'; }
+
+async function askGemini() {
+    const qInput = document.getElementById('user-query');
+    const q = qInput.value; if(!q) return;
+    addMsg(q, 'user'); qInput.value = '';
+    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+    try {
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ contents: [{ parts: [{ text: "Ets el Core de la Matriu. Tutor socràtic. Dades: " + rawData.join(',') + ". Pregunta: " + q }] }] })
         });
-    }
-    
-    return intervals;
+        const data = await res.json();
+        addMsg(data.candidates[0].content.parts[0].text, 'ia');
+    } catch(e) { addMsg("FALLADA_DE_PROTOCOL. Revisa la consola F12.", 'ia'); }
 }
 
-/**
- * Mostra els intervals a la taula
- */
-function displayIntervals() {
-    const tbody = document.getElementById('interval-body');
-    if (!tbody) return;
-    
-    tbody.innerHTML = '';
-    
-    if (currentIntervals.length === 0) return;
-    
-    currentIntervals.forEach((interval, index) => {
-        const row = document.createElement('tr');
-        row.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
-        row.innerHTML = `
-            <td style="padding: 10px;">${interval.notation}</td>
-            <td style="padding: 10px;">
-                <input 
-                    type="number" 
-                    class="val-input xi-in" 
-                    id="mark-${index}"
-                    data-index="${index}"
-                    data-correct="${interval.correctMark}"
-                    oninput="validateMark(${index})"
-                    step="0.5"
-                    style="width: 70px; padding: 2px;">
-            </td>
-        `;
-        tbody.appendChild(row);
-    });
-}
-
-/**
- * Neteja la taula d'intervals
- */
-function clearIntervals() {
-    const tbody = document.getElementById('interval-body');
-    if (!tbody) return;
-    
-    tbody.innerHTML = '';
-    
-    currentIntervals = [];
-    userMarks = {};
-}
-
-/* ========================================
-   VALIDACIÓ
-   ======================================== */
-
-/**
- * Valida la marca de classe introduïda per l'usuari
- */
-function validateMark(index) {
-    const input = document.getElementById(`mark-${index}`);
-    
-    if (!input) return;
-    
-    const userValue = parseFloat(input.value);
-    const correctValue = currentIntervals[index].correctMark;
-    
-    if (!isValidNumber(userValue)) {
-        input.classList.remove('correct', 'incorrect');
-        userMarks[index] = null;
-        return;
-    }
-    
-    // Validar amb tolerància
-    const isCorrect = numbersEqual(userValue, correctValue, 0.01);
-    
-    // Aplicar classe visual
-    input.className = "val-input xi-in " + (isCorrect ? "correct" : "incorrect");
-    
-    userMarks[index] = {
-        value: userValue,
-        correct: isCorrect
-    };
-    
-    // Verificar si tots estan correctes
-    checkAllCorrect();
-    
-    // Actualitzar context de Gemini
-    updateGeminiContext();
-}
-
-/**
- * Comprova si totes les marques són correctes
- */
-function checkAllCorrect() {
-    if (currentIntervals.length === 0) return false;
-    
-    const allCorrect = currentIntervals.every((_, index) => {
-        return userMarks[index] && userMarks[index].correct;
-    });
-    
-    if (allCorrect) {
-        showNotification('Excel·lent! Tots els intervals són correctes', 'success', 4000);
-    }
-    
-    return allCorrect;
-}
-
-/* ========================================
-   INTEGRACIÓ AMB GEMINI
-   ======================================== */
-
-/**
- * Actualitza el context de l'exercici per Gemini
- */
-function updateGeminiContext() {
-    const context = {
-        exerciseType: 'Creació d\'intervals',
-        data: rawData,
-        stats: stats,
-        currentStep: 'intervals',
-        userInputs: {
-            start: document.getElementById('in-start')?.value || null,
-            amplitude: document.getElementById('in-amp')?.value || null,
-            marks: userMarks,
-            intervalsGenerated: currentIntervals.length > 0
-        }
-    };
-    
-    initExerciseContext(context);
-}
-
-/**
- * Gestiona la tecla Enter al input del chat
- */
-function handleEnterKey(event) {
-    if (event.key === 'Enter') {
-        sendUserQuery();
-    }
-}
-
-/* ========================================
-   INICIALITZACIÓ AUTOMÀTICA
-   ======================================== */
-
-// Inicialitzar quan es carrega la pàgina
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initExercise);
-} else {
-    initExercise();
+function addMsg(t, s) {
+    const w = document.getElementById('chat-window');
+    const d = document.createElement('div'); d.className = `msg msg-${s}`; d.innerText = t;
+    w.appendChild(d); w.scrollTop = w.scrollHeight;
 }
