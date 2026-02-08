@@ -1,8 +1,8 @@
 name: Deploy La Matriu
 
 on: 
-push: 
-branches: 
+  push: 
+    branches: 
       -main
 
 permissions: 
