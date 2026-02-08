@@ -458,6 +458,12 @@ function initChatEventListeners() {
 function initGeminiAI() {
     console.log('🤖 LA MATRIU - Gemini AI Initialized');
     
+    // Comprovar si hi ha una clau injectada globalment
+    if (typeof INJECTED_API_KEY !== 'undefined' && INJECTED_API_KEY && INJECTED_API_KEY !== 'REPLACE_ME_WITH_API_KEY' && INJECTED_API_KEY.length > 20) {
+        saveApiKey(INJECTED_API_KEY);
+        console.log('✅ API Key injectada automàticament des de deploy');
+    }
+    
     initChatInterface();
     initChatEventListeners();
 }
