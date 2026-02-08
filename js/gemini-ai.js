@@ -456,16 +456,31 @@ function initChatEventListeners() {
  * Inicializa el módulo de Gemini AI
  */
 function initGeminiAI() {
-    console.log('🤖 LA MATRIU - Gemini AI Initialized');
-    
-    // Comprovar si hi ha una clau injectada globalment
-    if (typeof INJECTED_API_KEY !== 'undefined' && INJECTED_API_KEY && INJECTED_API_KEY !== 'REPLACE_ME_WITH_API_KEY' && INJECTED_API_KEY.length > 20) {
-        saveApiKey(INJECTED_API_KEY);
-        console.log('✅ API Key injectada automàticament des de deploy');
-    }
-    
-    initChatInterface();
-    initChatEventListeners();
+
+  console.log('🤖 LA MATRIU - Gemini AI Initialized');
+
+  // 1. Prioritat màxima: Revisar si GitHub ha injectat la clau
+  if (typeof INJECTED_API_KEY !== 'undefined' && INJECTED_API_KEY !== 'REPLACE_ME_WITH_API_KEY') {
+    saveApiKey(INJECTED_API_KEY);
+    console.log('✅ API Key detectada des de la injecció global.');
+  }
+
+  // 2. Intentar arrencar el xat
+  const keyActual = getApiKey();
+
+  if (keyActual && keyActual !== 'REPLACE_ME_WITH_API_KEY' && keyActual.length > 20) {
+
+    // FORÇAR EL CANVI DE UI
+    const setupPanel = document.getElementById('api-setup');
+    const chatPanel = document.getElementById('chat-interface');
+
+    if (setupPanel) setupPanel.style.display = 'none';
+    if (chatPanel) chatPanel.style.display = 'flex';
+
+    addSystemMessage('PROTOCOL_ACTIVE: Connexió establerta amb l\'Oracle.');
+  }
+
+  initChatEventListeners();
 }
 
 // Auto-inicialización
