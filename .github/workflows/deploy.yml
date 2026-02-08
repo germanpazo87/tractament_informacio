@@ -3,7 +3,7 @@ name: Deploy La Matriu
 on: 
   push: 
     branches: 
-      -main
+      - main
 
 permissions: 
   contents: write
