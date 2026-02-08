@@ -12,7 +12,9 @@
     <link rel="stylesheet" href="../css/matrix-core.css">
     <link rel="stylesheet" href="../css/exercises.css">
 </head>
-<body class="exercise-layout">
+<body>
+
+<div class="exercise-layout">
 
 <!-- CONTENIDO PRINCIPAL -->
 <div class="main-content">
@@ -34,55 +36,32 @@
     <!-- CARD: GENERACIÓN DE DATOS -->
     <div class="card">
         <span class="tool-id">DADES_REBUDES // RAW_DATA</span>
-        <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
-            <button class="btn-cmd" onclick="generateNewData()">GENERAR NOVES DADES</button>
-            <button class="btn-cmd btn-green" onclick="loadSavedData()" id="btn-load-saved" style="display: none;">CARREGAR DADES ANTERIORS</button>
-        </div>
+        <button class="btn-cmd" onclick="generateNewData()" style="margin-bottom: 15px;">GENERAR NOVES DADES</button>
         
-        <div class="data-display" id="data-display">--</div>
+        <div id="data-display" style="color: var(--neon-yellow); font-size: 0.9rem; margin: 15px 0; letter-spacing: 1px;">--</div>
         
-        <div class="stats-display">
-            <div class="stat-item">
-                <span class="stat-label">MÍN:</span>
-                <span class="stat-value" id="stat-min">--</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">MÀX:</span>
-                <span class="stat-value" id="stat-max">--</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">N:</span>
-                <span class="stat-value" id="stat-count">--</span>
-            </div>
+        <div style="font-size: 0.75rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; margin-top: 10px;">
+            MÍN: <span id="stat-min" style="color: var(--neon-pink)">--</span> | 
+            MÀX: <span id="stat-max" style="color: var(--neon-pink)">--</span> | 
+            N: <span id="stat-count" style="color: var(--neon-pink)">--</span>
         </div>
     </div>
 
     <!-- CARD: CONFIGURACIÓN DE INTERVALOS -->
     <div class="card">
-        <span class="tool-id">CONFIG_INTERVALS // PARÀMETRES</span>
-        <p style="font-size: 0.85rem; color: rgba(255,255,255,0.7); margin-bottom: 15px;">
-            📌 <strong>Andamiatge:</strong> L'inici ha de ser ≤ al mínim. L'amplitud ha de permetre cobrir totes les dades en 5 intervals.
+        <span class="tool-id">CONFIG_INTERVALS // LOGIC</span>
+        <p style="font-size: 0.85rem; margin-bottom: 15px;">
+            Configura l'Inici ($x_{start}$) i l'Amplitud ($A$):
         </p>
         
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-            <div>
-                <label style="font-size: 0.75rem; display: block; margin-bottom: 5px; color: var(--neon-blue);">
-                    INICI (x<sub>start</sub>):
-                </label>
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <div style="flex: 1;">
+                <label style="font-size: 0.7rem; display: block; margin-bottom: 5px;">INICI ($x_{start}$):</label>
                 <input type="number" id="in-start" class="val-input" placeholder="Ex: 10" oninput="updateIntervals()">
-                <div style="font-size: 0.65rem; color: rgba(255,255,255,0.5); margin-top: 5px;">
-                    💡 Ha de ser ≤ <span id="hint-min">--</span>
-                </div>
             </div>
-            
-            <div>
-                <label style="font-size: 0.75rem; display: block; margin-bottom: 5px; color: var(--neon-blue);">
-                    AMPLITUD (A):
-                </label>
+            <div style="flex: 1;">
+                <label style="font-size: 0.7rem; display: block; margin-bottom: 5px;">AMPLITUD ($A$):</label>
                 <input type="number" id="in-amp" class="val-input" placeholder="Ex: 5" oninput="updateIntervals()">
-                <div style="font-size: 0.65rem; color: rgba(255,255,255,0.5); margin-top: 5px;">
-                    💡 Rang suggerit: <span id="hint-amp">--</span>
-                </div>
             </div>
         </div>
     </div>
@@ -90,42 +69,22 @@
     <!-- CARD: VISTA PREVIA DE INTERVALOS -->
     <div class="card">
         <span class="tool-id">VISTA_PRÈVIA // VALIDACIÓ</span>
-        <p style="font-size: 0.85rem; color: rgba(255,255,255,0.7); margin-bottom: 15px;">
-            📌 <strong>Marca de classe (x<sub>i</sub>):</strong> Punt central de cada interval = (L<sub>inferior</sub> + L<sub>superior</sub>) / 2
-        </p>
         
         <table class="preview-table">
             <thead>
                 <tr>
                     <th>INTERVAL</th>
-                    <th>x<sub>i</sub> (Marca de classe)</th>
-                    <th>STATUS</th>
+                    <th>$x_i$ (Marca)</th>
                 </tr>
             </thead>
             <tbody id="interval-body">
-                <tr>
-                    <td colspan="3" style="text-align: center; color: rgba(255,255,255,0.4); padding: 30px;">
-                        Configura els paràmetres per veure els intervals
-                    </td>
-                </tr>
+                <!-- Els intervals es generaran aquí -->
             </tbody>
         </table>
     </div>
 
-    <!-- NAVEGACIÓN -->
-    <div class="exercise-nav">
-        <div class="nav-step">
-            PAS 1 de 5: Intervals
-        </div>
-        <div class="nav-buttons">
-            <button class="btn-cmd" onclick="window.location.href='index.html'">TORNAR AL MENÚ</button>
-            <button class="btn-cmd btn-green" onclick="saveAndContinue()" id="btn-continue" disabled>
-                CONTINUAR → Freqüències
-            </button>
-        </div>
-    </div>
-
 </div>
+<!-- Fi de main-content -->
 
 <!-- SIDEBAR DE IA -->
 <div class="ai-sidebar">
@@ -169,8 +128,20 @@
     </div>
 
 </div>
+<!-- Fi de exercise-layout -->
 
 <!-- SCRIPTS -->
+<script>
+    // API Key injectada pel deploy.yml de GitHub Actions
+    // Aquest valor serà substituït automàticament en producció
+    const INJECTED_API_KEY = 'REPLACE_ME_WITH_API_KEY';
+    
+    // Si hi ha una clau injectada vàlida, guardar-la automàticament
+    if (INJECTED_API_KEY && INJECTED_API_KEY !== 'REPLACE_ME_WITH_API_KEY' && INJECTED_API_KEY.length > 20) {
+        localStorage.setItem('la_matriu_key', INJECTED_API_KEY);
+        console.log('✅ API Key injectada automàticament');
+    }
+</script>
 <script src="../js/core.js"></script>
 <script src="../js/gemini-ai.js"></script>
 <script src="js/intervals.js"></script>
